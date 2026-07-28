@@ -90,4 +90,4 @@ When Codex gains `@import` support, `codex/AGENTS.md` can be simplified to two l
 ---
 
 **Last updated:** July 24, 2026  
-**Maintainer:** @gersondantasdossantos
+**Maintainer:** [@gersondantas](https://www.linkedin.com/in/gersonsantosss/)
