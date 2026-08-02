@@ -1,6 +1,6 @@
 # MyCustomAiInstructions
 
-Unified AI instruction repository for Claude Code, Codex, and other AI tools. This project maintains conversation guidelines (dez diretrizes) and code guidelines in version control, with tool-specific entry points that reference a shared source of truth.
+Unified AI instruction repository for Claude Code, Codex, and other AI tools. This project keeps compact working agreements and code guidelines in version control, with tool-specific entry points generated from a shared source of truth.
 
 ## Structure
 
@@ -8,12 +8,16 @@ Unified AI instruction repository for Claude Code, Codex, and other AI tools. Th
 MyCustomAiInstructions/
 ├── README.md                        # This file
 ├── shared/
-│   ├── conversation-guidelines.md   # 10 conversation & reasoning directives (Portuguese)
-│   └── code-guidelines.md           # 4 coding discipline guidelines (English)
+│   ├── conversation-guidelines.md   # Communication, judgment, and scope
+│   └── code-guidelines.md           # Minimal, surgical, verifiable coding
 ├── claude/
 │   └── CLAUDE.md                    # Claude Code entry point (@import references shared/)
-└── codex/
-    └── AGENTS.md                    # Codex/Cursor entry point (embedded content)
+├── codex/
+│   └── AGENTS.md                    # Generated Codex/Cursor entry point
+└── scripts/
+    ├── sync-instructions.sh         # Rebuilds the Codex bundle
+    ├── eval-instructions.sh         # Compares baseline and current Codex behavior
+    └── eval-claude-instructions.sh  # Compares baseline and current Claude behavior
 ```
 
 ## Installation
@@ -47,7 +51,7 @@ MyCustomAiInstructions/
 **When updating guidelines:**
 - Edit `shared/conversation-guidelines.md` or `shared/code-guidelines.md`.
 - Claude Code picks up changes automatically the next session.
-- **For Codex**: manually paste the updated sections into `codex/AGENTS.md`. This is a temporary workaround until Codex gains import support.
+- **For Codex**: run `sh scripts/sync-instructions.sh` to rebuild `codex/AGENTS.md`.
 
 **Versioning:**
 - Commit this folder to git for version history and team sync.
@@ -56,38 +60,48 @@ MyCustomAiInstructions/
 ## Files Overview
 
 ### `shared/conversation-guidelines.md`
-Ten directives for AI reasoning and communication style (Português):
-1. Responsabilidade Extrema (Accountability Prompting)
-2. Anti-Bajulação (Sycophancy Mitigation)
-3. Sistematize o Repetível (Systematization Protocol)
-4. Pense Antes de Responder (Clarification Prompting)
-5. Elevação de Nível (Effort Scaffolding)
-6. Execução Orientada por Meta (Self-Eval Prompting)
-7. Recuo Estratégico (Step-Back Prompting)
-8. Verificação em Cadeia (Chain of Verification)
-9. Confiança Calibrada (Verbalized Confidence)
-10. Refinamento de Pergunta (Prompt Refinement)
-
-Plus style discipline rules: no preamble, avoid filler words, rhythm not staccato, zero em-dashes, right format for the task.
+Compact agreements for communication, judgment, scope, autonomy, factual verification, and completion.
 
 ### `shared/code-guidelines.md`
-Four directives for coding discipline (English):
-1. **Think Before Coding** – State assumptions, surface tradeoffs, ask before acting.
-2. **Simplicity First** – Minimum code, no speculative features or error handling.
-3. **Surgical Changes** – Touch only what's required; don't "improve" adjacent code.
-4. **Goal-Driven Execution** – Define success criteria, loop until verified (test-first pattern).
+Compact rules for assumptions, reuse, minimum code, surgical changes, reproduction, and validation.
 
 ### `claude/CLAUDE.md`
 Two `@import` lines that load the shared guidelines into Claude Code. Resolves at session startup.
 
 ### `codex/AGENTS.md`
-Embedded concatenation of conversation + code guidelines for Codex. Update manually when `shared/` changes.
+Generated concatenation of the shared conversation and code guidelines for Codex.
+
+## Test before and after
+
+Before committing, compare the current bundle with the version at `HEAD`:
+
+```bash
+sh scripts/eval-instructions.sh
+```
+
+Use a representative prompt from real work:
+
+```bash
+sh scripts/eval-instructions.sh \
+  "Revise esta decisão, compare custo, risco e reversibilidade, e recomende uma opção."
+```
+
+The test uses isolated Codex homes, the same authentication, read-only mode, and ephemeral sessions. It prints both instruction sizes, both answers, and their diff. Repeat real prompts and compare completion, style violations, unnecessary questions, unsupported claims, scope expansion, and answer length. After committing, set `BASELINE_REF=HEAD^` to compare with the previous commit.
+
+Run the equivalent comparison with Claude Code:
+
+```bash
+sh scripts/eval-claude-instructions.sh \
+  "Revise esta decisão, compare custo, risco e reversibilidade, e recomende uma opção."
+```
+
+The Claude test uses `--safe-mode`, disables tools and session persistence, and replaces the system prompt with the selected instruction bundle. It reports both answers, usage, cost, and their diff. Set `CLAUDE_EVAL_MODEL` or `CLAUDE_EVAL_EFFORT` to change the shared model configuration. If the Claude OAuth session has expired, run `claude auth login` first.
 
 ## Future
 
-When Codex gains `@import` support, `codex/AGENTS.md` can be simplified to two lines, just like Claude's version. Until then, both files must be maintained (though `codex/AGENTS.md` is a derived file, so automate the sync if possible).
+When Codex gains `@import` support, `codex/AGENTS.md` can be simplified to two lines, just like Claude's version. Until then, edit `shared/` and regenerate the derived bundle with `scripts/sync-instructions.sh`.
 
 ---
 
-**Last updated:** July 24, 2026  
+**Last updated:** August 2, 2026
 **Maintainer:** [@gersondantas](https://www.linkedin.com/in/gersonsantosss/)
