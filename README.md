@@ -2,6 +2,15 @@
 
 Unified AI instruction repository for Claude Code, Codex, and other AI tools. This project keeps compact working agreements and code guidelines in version control, with tool-specific entry points generated from a shared source of truth.
 
+<p align="center">
+  <a href="https://ko-fi.com/gerson_dantas" target="_blank" rel="noopener noreferrer">
+    <img src="https://github.com/GersonDantas/img/blob/b81c0ba4adb694a7a65a91f64f7a1670d4d5c101/qrcode.png" alt="Buy Me a Coffee" height="200">
+  </a>
+</p>
+
+<p align="center">Enjoying Agent Team Configurator? Support the project with a coffee ☕</p>
+
+
 ## Structure
 
 ```
