@@ -27,11 +27,8 @@ EVALUATORS = {
 }
 
 
-def load_cases(path: Path):
-    if not path.exists():
-        raise SystemExit(f"Missing case file: {path}")
-    with path.open(encoding="utf-8") as stream:
-        cases = [json.loads(line) for line in stream if line.strip()]
+def load_cases(source: bytes):
+    cases = [json.loads(line) for line in source.decode("utf-8").splitlines() if line.strip()]
     ids = set()
     for case in cases:
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", case.get("id", "")) or case["id"] in ids:
@@ -62,8 +59,11 @@ def main() -> int:
     args = parser.parse_args()
 
     source_path = SOURCES[args.source]
-    source_sha = hashlib.sha256(source_path.read_bytes()).hexdigest() if source_path.exists() else ""
-    cases = load_cases(source_path)
+    if not source_path.exists():
+        raise SystemExit(f"Missing case file: {source_path}")
+    source = source_path.read_bytes()
+    source_sha = hashlib.sha256(source).hexdigest()
+    cases = load_cases(source)
     requested_ids = set(filter(None, (args.ids or "").split(",")))
     if requested_ids:
         cases = [case for case in cases if case["id"] in requested_ids]

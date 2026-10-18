@@ -172,6 +172,27 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(config.read_text(), 'model = "user-choice"\n')
         self.assertTrue(json.loads(settings.read_text())["userKey"])
 
+    def test_check_preserves_external_skill_without_pinned_references(self):
+        tools = {name: "/bin/true" for name in ("rtk", "codegraph", "graphify")}
+        for host in (self.installer.codex, self.installer.claude):
+            skill = host / "skills/graphify/SKILL.md"
+            skill.parent.mkdir(parents=True)
+            skill.write_text("external Graphify revision")
+        manifest = json.loads(json.dumps(self.installer.manifest))
+        manifest["skills"]["caveman"]["sha256"] = hashlib.sha256(b"synthetic skill").hexdigest()
+        original_init = M.Installer.__init__
+
+        def init_with_manifest(instance, *args, **kwargs):
+            original_init(instance, *args, **kwargs)
+            instance.manifest = manifest
+
+        with patch.object(M.Installer, "__init__", init_with_manifest), \
+             patch.object(M.Installer, "tools", return_value=tools):
+            installer = M.Installer(self.home)
+            installer.apply(installer.desired(True, tools, {"caveman": b"synthetic skill"}), True, tools)
+            with patch.object(sys, "argv", ["cheapskate.py", "check", "--home", str(self.home)]):
+                self.assertEqual(M.main(), 0)
+
     def test_download_integrity_refusal(self):
         class Response:
             def __enter__(self): return self

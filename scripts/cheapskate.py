@@ -578,6 +578,9 @@ def main():
             for directory in (installer.codex, installer.claude):
                 for name, relative, spec in skill_resources(installer.manifest):
                     path = directory / f"skills/{name}/{relative}"
+                    skill = directory / f"skills/{name}/SKILL.md"
+                    if skill.is_file() and str(skill) not in installer.registry["files"] and relative != "SKILL.md":
+                        continue
                     if not path.is_file():
                         raise Conflict(f"Skill ausente: {path}")
                     if hashlib.sha256(path.read_bytes()).hexdigest() != spec["sha256"]:

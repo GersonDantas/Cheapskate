@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import hashlib
 import json
 import os
@@ -271,6 +272,17 @@ def main():
         for result in results:
             print(json.dumps({key: result.get(key) for key in
                               ("arm", "status", "observed_models", "usage", "duration_seconds")}))
+        if not os.environ.get("EVAL_OUTPUT_DIR"):
+            answers = {}
+            for label in ("before", "after"):
+                path = output / f"{args.host}-{label}.md"
+                answers[label] = path.read_text() if path.is_file() else ""
+                print(f"\n--- {label} answer ---\n{answers[label]}")
+            print("\n--- answer diff ---")
+            print("".join(difflib.unified_diff(
+                answers["before"].splitlines(keepends=True),
+                answers["after"].splitlines(keepends=True),
+                fromfile="before", tofile="after")))
         return 0 if all(result["status"] == "completed" for result in results) else 1
 
 

@@ -32,15 +32,23 @@ def mcp_smoke(project, env):
     selector.register(process.stdout, selectors.EVENT_READ)
     initialized = False
     deadline = time.monotonic() + 15
+    pending = b""
     try:
         while time.monotonic() < deadline:
-            if selector.select(timeout=0.5):
-                line = process.stdout.readline()
-                if not line:
+            if selector.select(timeout=min(0.5, max(0, deadline - time.monotonic()))):
+                chunk = os.read(process.stdout.fileno(), 4096)
+                if time.monotonic() >= deadline:
                     break
-                response = json.loads(line)
-                if response.get("id") == 1:
-                    initialized = isinstance(response.get("result", {}).get("capabilities"), dict)
+                if not chunk:
+                    break
+                pending += chunk
+                while b"\n" in pending:
+                    line, pending = pending.split(b"\n", 1)
+                    response = json.loads(line)
+                    if response.get("id") == 1:
+                        initialized = isinstance(response.get("result", {}).get("capabilities"), dict)
+                        break
+                if initialized:
                     break
     finally:
         selector.close()
@@ -55,6 +63,8 @@ def mcp_smoke(project, env):
             except ProcessLookupError:
                 pass
             process.wait()
+            process.stdin.close()
+            process.stdout.close()
     return {"initialized": initialized, "index_created": (project / ".codegraph").exists(),
             "scope": "protocol_handshake_not_code_navigation"}
 
