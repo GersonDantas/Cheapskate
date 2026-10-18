@@ -595,7 +595,8 @@ def main():
             tools = installer.tools()
             for name, command in (("codegraph", "npm"), ("graphify", "pipx")):
                 if not tools[name] and not shutil.which(command):
-                    raise Conflict(f"Instale {command} para provisionar {name}.")
+                    raise Conflict(f"Instale {command} para provisionar {name}. "
+                                   "No clone do Cheapskate, execute bash scripts/bootstrap.sh.")
         desired = installer.desired(full, tools)
         changes = installer.changes(desired)
     elif args.command == "uninstall":
