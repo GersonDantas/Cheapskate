@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+
+# Private evaluation inputs and generated runs.
+evals/local/
+
+# Tool indexes and local state are project- or machine-specific.
+.codegraph/
+graphify-out/
