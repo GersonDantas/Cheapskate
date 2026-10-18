@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "platform": "Darwin",
+  "verified_on": "2026-10-11",
+  "tested_clients": {"codex": "0.161.0", "claude": "2.1.221"},
+  "rtk": {
+    "version": "0.46.0",
+    "artifacts": {
+      "arm64": {"url": "https://github.com/rtk-ai/rtk/releases/download/v0.46.0/rtk-aarch64-apple-darwin.tar.gz", "sha256": "484e5dd2b4bfdbbb910727a0ba1e2d63b2e23efa922cfcc7300fd131bca3e10a"},
+      "x86_64": {"url": "https://github.com/rtk-ai/rtk/releases/download/v0.46.0/rtk-x86_64-apple-darwin.tar.gz", "sha256": "67eb651fa9cfc4a4ea65876242eb71b8837abdac40521d0dd363214ec1a068dd"}
+    }
+  },
+  "codegraph": {
+    "version": "1.5.0",
+    "url": "https://registry.npmjs.org/@colbymchenry/codegraph/-/codegraph-1.5.0.tgz",
+    "sha512": "fe5d49315390f561902eb73f208b8083b220afde38b7bf7fa0d0894dc9c6918b48790c765c522a234868fbd2deb3f62ee3329f98f535ee1214b210fac8fd5f2b"
+  },
+  "graphify": {
+    "version": "0.9.63",
+    "url": "https://files.pythonhosted.org/packages/22/28/9df40468143dff07717fa4a047ee6eadc86048d071c5ce1f95e2b6dcf74e/graphifyy-0.9.63-py3-none-any.whl",
+    "sha256": "e56aff02d01021c3337b192af6e4d1d2d28b70a35bb4912f777264c3858712d3"
+  },
+  "skills": {
+    "caveman": {"revision": "2e08b9177c07bb7249a8a2d1a6758e5db281d002", "url": "https://raw.githubusercontent.com/JuliusBrussee/caveman/2e08b9177c07bb7249a8a2d1a6758e5db281d002/skills/caveman/SKILL.md", "sha256": "415d43518f2b1a9498c15a445d4657117b129ee5e81b19454ce348439cc6672b"},
+    "graphify": {
+      "revision": "eaaec1abd99d3a7fb30301ccb49f4cc72ae34011",
+      "url": "https://raw.githubusercontent.com/Graphify-Labs/graphify/eaaec1abd99d3a7fb30301ccb49f4cc72ae34011/graphify/skill.md",
+      "sha256": "3e4d30df5a936965acaa25117230a6f3ff44353c137e63030e85e3bc3a391fb7",
+      "reference_base": "https://raw.githubusercontent.com/Graphify-Labs/graphify/eaaec1abd99d3a7fb30301ccb49f4cc72ae34011/graphify/skills/claude/references/",
+      "references": {
+        "add-watch.md": "b3f67570240582689c2834b4831917550c2d1aaf042148868c39dcbf387ce3fd",
+        "exports.md": "ee47fae477f106d8aed38798c58493b5a7f060a0d9d2581ce6132302827bc14b",
+        "extraction-spec.md": "f72a6d2dfa67446f06f27a8f0053af1adc8d53b02e393c8472045f6740c6183e",
+        "github-and-merge.md": "e5ebd90c7686f50363ff7a535556bc2f596d4c47ec1e6c8b95e11e36a0dfea2b",
+        "hooks.md": "b9a4e9f66813c6fc720589f1071d1a03c95756ab7101447e14e57291fe7844e5",
+        "query.md": "e563ddcb1e155aa230f107e5ef9380bc1249c5cd8241128de7ed8a7bd9c20cf5",
+        "transcribe.md": "676a1e39aa6d43cdfcc416ec56616e36f7bad74066a82bd33a9485515b9a865c",
+        "update.md": "661f559b3ff4f3db7ba47bc2ba1c7e19f1c1d66a36f647e49221eecb174f2228"
+      }
+    }
+  },
+  "team": {
+    "optional": true,
+    "version": "0.5.0",
+    "revision": "efe9bafad9b0d414f9a9a7d72b71f84ffb1378b2",
+    "url": "https://api.github.com/repos/GersonDantas/agent-team-configurator/tarball/efe9bafad9b0d414f9a9a7d72b71f84ffb1378b2",
+    "sha256": "e8f88b6d2410b4909eb63d6e6f7ff88afb6a5f450053a226bc78405c63efb2fe"
+  }
+}
