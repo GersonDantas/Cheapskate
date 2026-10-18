@@ -34,11 +34,13 @@ MyCustomAiInstructions/
 ### For Claude Code
 
 1. Move this folder to `~/Documents/MyCustomAiInstructions/`.
-2. Copy `claude/CLAUDE.md` to `~/.claude/CLAUDE.md`:
+2. Generate a self-contained Claude instruction file from the shared guidelines:
    ```bash
-   cp claude/CLAUDE.md ~/.claude/CLAUDE.md
+   sh scripts/sync-instructions.sh
+   mkdir -p ~/.claude
+   { cat generic/INSTRUCTIONS.md; printf '\n\n'; cat claude/host-guidelines.md; } > ~/.claude/CLAUDE.md
    ```
-3. Open a new Claude Code session. The `@import` directives in `CLAUDE.md` will resolve and load the shared guidelines automatically.
+3. Open a new Claude Code session. Repeat step 2 after editing the shared guidelines.
 
 ### For Codex/Cursor
 
@@ -59,7 +61,7 @@ MyCustomAiInstructions/
 
 **When updating guidelines:**
 - Edit `shared/conversation-guidelines.md` or `shared/code-guidelines.md`.
-- Claude Code picks up changes automatically the next session.
+- **For Claude Code**: regenerate and copy the self-contained file as shown above.
 - **For Codex**: run `sh scripts/sync-instructions.sh` to rebuild `codex/AGENTS.md`.
 
 **Versioning:**
