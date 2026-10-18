@@ -167,6 +167,16 @@ See [architecture](docs/architecture.md) and
 
 ## Project status
 
-The repository is moving from the historical `0.0.1` instruction set toward a
-macOS-first release candidate. The installer has isolated tests; independent
-installation, runtime hook validation, benchmarks, and publication remain.
+The macOS-first implementation is integrated into `master`. Run the offline
+checks with:
+
+```sh
+python3 -m unittest discover -s tests -p 'test*.py'
+sh tests/test-evaluators.sh
+python3 tests/test_collect_real_prompts.py
+```
+
+These checks use temporary directories and simulated clients. Clean-machine
+dependency installation, live hook behavior, and controlled benchmarks still
+need independent validation before publication. The historical `0.0.1` tag
+remains unchanged while the next release is prepared.
