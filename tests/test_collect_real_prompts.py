@@ -27,6 +27,13 @@ def main() -> int:
     assert "/Users/example" not in sanitized
     assert "123456789012" not in sanitized
     assert "review_repository_and_company_names" in flags
+    for secret in ('{"token": "super-secret-token-value"}',
+                   '{"token": "first\\\" remaining secret"}',
+                   'password = "two word secret"'):
+        cleaned, _ = MODULE.sanitize(secret)
+        assert "super-secret-token-value" not in cleaned
+        assert "two word secret" not in cleaned
+        assert "remaining secret" not in cleaned
 
     assert MODULE.authored_text("<environment_context>hidden</environment_context>") == ""
     assert MODULE.authored_text("A real user request") == "A real user request"
