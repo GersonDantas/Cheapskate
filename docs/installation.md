@@ -17,8 +17,8 @@ Code; mostra o estado de cada um e as instalações necessárias. A segunda
 chamada pede confirmação antes de instalar. Se algum pacote precisar de
 Homebrew e ele estiver ausente, baixa o instalador do projeto oficial e o
 executa. Homebrew instala os pacotes e os casks ausentes. A instalação pode
-pedir a senha de administrador e acesso à rede. Após falha nos pacotes ou no
-login, reexecute o comando: ele detecta os passos já concluídos. Se a falha
+pedir a senha de administrador e acesso à rede. Após falha nos pacotes,
+reexecute o comando: ele detecta os passos já concluídos. Se a falha
 ocorrer na transação do instalador Cheapskate, siga a seção Recuperação.
 
 O assistente prepara Homebrew e `~/.local/bin` no PATH do shell zsh, bash ou
@@ -29,10 +29,15 @@ Clientes já presentes são preservados, inclusive quando estão em
 `~/.local/bin` fora do PATH inicial.
 
 Após instalar os programas, o assistente consulta `codex login status` e
-`claude auth status` sem mostrar ou salvar a saída. Se necessário, abre
-`codex login` e `claude auth login` para o usuário autenticar no navegador.
-Ele confirma o estado novamente e interrompe se o login não terminar. As
-credenciais permanecem sob controle dos próprios clientes.
+`claude auth status` sem mostrar ou salvar a saída. Se não houver autenticação,
+pergunta separadamente se deseja entrar em cada cliente. O padrão é pular,
+inclusive quando não há resposta. Quem não tiver conta pode concluir a instalação
+normalmente. Se o usuário aceitar, abre `codex login` ou `claude auth login` e
+confirma o estado novamente. Falha ou ausência de confirmação gera aviso, sem
+cancelar a instalação. O assistente informa o comando para entrar depois;
+usar os clientes exige autenticação válida. As credenciais permanecem sob
+controle dos próprios clientes. Erros de instalação e integridade continuam
+interrompendo o processo.
 
 Por fim, o assistente mostra a prévia do instalador Cheapskate, pede a
 confirmação própria dessa etapa, instala instruções e integrações e executa
@@ -46,7 +51,8 @@ mais novas.
 
 Para executar apenas o instalador existente a partir do clone, use um Python
 3.11 ou superior disponível no PATH. Prepare manualmente npm, pipx, Codex CLI,
-Claude Code e os logins antes desta etapa se não usar o assistente:
+Claude Code antes desta etapa se não usar o assistente. Os logins podem ser
+feitos depois da instalação:
 
 ```sh
 python3 scripts/cheapskate.py install --dry-run

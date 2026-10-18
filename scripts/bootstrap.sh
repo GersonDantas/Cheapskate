@@ -82,7 +82,7 @@ fi
 (( need_codex )) && echo "  brew install --cask codex" || echo "  Codex CLI: presente"
 (( need_claude )) && echo "  brew install --cask claude-code" || echo "  Claude Code: presente"
 echo "  Configurar PATH em $profile se necessário."
-echo "  Verificar login de Codex e Claude; abrir login interativo somente se necessário."
+echo "  Verificar login de Codex e Claude; oferecer login opcional, sem bloquear a instalação."
 echo "  Mostrar prévia do instalador Cheapskate, pedir confirmação e executar check."
 echo "Homebrew, pacotes, perfil de shell e login persistem após rollback/uninstall do Cheapskate."
 if (( dry_run )); then exit 0; fi
@@ -147,14 +147,32 @@ if [[ ! -f $profile ]] || ! grep -Fqx "$marker" "$profile"; then
   } >> "$profile" || fail "Não foi possível configurar $profile."
 fi
 if ! codex login status >/dev/null 2>&1; then
-  echo "Codex: abra o login no navegador."
-  codex login || fail "Login do Codex não foi concluído."
-  codex login status >/dev/null 2>&1 || fail "Login do Codex não foi confirmado."
+  answer=""
+  read -r -p "Codex: deseja entrar agora? Sem conta, pode pular. [s/N] " answer || true
+  if [[ $answer == s ]]; then
+    if ! codex login; then
+      echo "Aviso: Login do Codex não foi concluído. A instalação continuará."
+    elif ! codex login status >/dev/null 2>&1; then
+      echo "Aviso: Login do Codex não foi confirmado. A instalação continuará."
+    fi
+  fi
+  if ! codex login status >/dev/null 2>&1; then
+    echo "Codex: autenticação pendente. Para entrar depois: codex login"
+  fi
 fi
 if ! claude auth status >/dev/null 2>&1; then
-  echo "Claude Code: abra o login no navegador."
-  claude auth login || fail "Login do Claude Code não foi concluído."
-  claude auth status >/dev/null 2>&1 || fail "Login do Claude Code não foi confirmado."
+  answer=""
+  read -r -p "Claude Code: deseja entrar agora? Sem conta, pode pular. [s/N] " answer || true
+  if [[ $answer == s ]]; then
+    if ! claude auth login; then
+      echo "Aviso: Login do Claude Code não foi concluído. A instalação continuará."
+    elif ! claude auth status >/dev/null 2>&1; then
+      echo "Aviso: Login do Claude Code não foi confirmado. A instalação continuará."
+    fi
+  fi
+  if ! claude auth status >/dev/null 2>&1; then
+    echo "Claude Code: autenticação pendente. Para entrar depois: claude auth login"
+  fi
 fi
 
 "$python" "$root/scripts/cheapskate.py" install --dry-run || fail "Prévia do instalador Cheapskate falhou."

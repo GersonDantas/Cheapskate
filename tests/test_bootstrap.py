@@ -101,7 +101,7 @@ while [ "$1" != -o ]; do shift; done
         self.assertEqual(list(self.home.iterdir()), [])
 
     def test_full_flow_and_repeat_preserve_existing_state(self):
-        first = self.run_bootstrap(input_text="s\n")
+        first = self.run_bootstrap(input_text="s\ns\ns\n")
         self.assertEqual(first.returncode, 0, first.stderr)
         self.assertIn("Preparação concluída", first.stdout)
         log = self.log.read_text()
@@ -116,6 +116,7 @@ while [ "$1" != -o ]; do shift; done
         self.assertEqual(second.returncode, 0, second.stderr)
         self.assertEqual(self.log.read_text().count("brew install"), 5)
         self.assertEqual(self.log.read_text().count("codex login"), 1)
+        self.assertEqual(self.log.read_text().count("claude login"), 1)
         self.assertEqual(profile.read_text().count("# Cheapskate bootstrap PATH"), 1)
 
     def test_package_failure_stops_before_login_and_is_recoverable(self):
@@ -143,13 +144,55 @@ while [ "$1" != -o ]; do shift; done
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn("Instalar Homebrew", result.stdout)
 
-    def test_failed_login_stops_before_installer(self):
-        shutil.copy2(self.pending / "brew", self.bin / "brew")
-        self.stub("codex", 'if [ "$2" = status ]; then exit 1; fi; exit 1', pending=True)
-        failed = self.run_bootstrap(input_text="s\n")
-        self.assertNotEqual(failed.returncode, 0)
-        self.assertIn("Login do Codex não foi concluído", failed.stderr)
-        self.assertNotIn("install --dry-run", self.log.read_text())
+    def test_skipped_logins_continue_to_installer(self):
+        result = self.run_bootstrap(input_text="s\nn\nn\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        log = self.log.read_text()
+        self.assertNotIn("codex login", log)
+        self.assertNotIn("claude login", log)
+        self.assertIn("install --dry-run", log)
+        self.assertIn("check", log)
+        self.assertIn("codex login", result.stdout)
+        self.assertIn("claude auth login", result.stdout)
+
+    def test_failed_logins_continue_to_installer(self):
+        for name in ("codex", "claude"):
+            self.stub(name, f'echo "{name} $*" >> "$BOOTSTRAP_LOG"; exit 1', pending=True)
+        result = self.run_bootstrap(input_text="s\ns\ns\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Login do Codex não foi concluído", result.stdout)
+        self.assertIn("Login do Claude Code não foi concluído", result.stdout)
+        log = self.log.read_text()
+        self.assertIn("codex login\n", log)
+        self.assertIn("claude auth login\n", log)
+        self.assertIn("check", log)
+
+    def test_unconfirmed_logins_continue_to_installer(self):
+        for name in ("codex", "claude"):
+            self.stub(name, 'if [ "$2" = status ]; then exit 1; fi; exit 0', pending=True)
+        result = self.run_bootstrap(input_text="s\ns\ns\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Login do Codex não foi confirmado", result.stdout)
+        self.assertIn("Login do Claude Code não foi confirmado", result.stdout)
+        self.assertIn("check", self.log.read_text())
+
+    def test_login_prompt_eof_skips_authentication(self):
+        result = self.run_bootstrap(input_text="s\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("codex login", self.log.read_text())
+        self.assertNotIn("claude login", self.log.read_text())
+        self.assertIn("check", self.log.read_text())
+
+    def test_integrity_failure_still_stops_after_skipping_logins(self):
+        self.stub("python3.11", '''
+if [ "$1" = -c ]; then exit 0; fi
+echo "python $*" >> "$BOOTSTRAP_LOG"
+if [ "$2" = check ]; then exit 1; fi
+exit 0''', pending=True)
+        result = self.run_bootstrap(input_text="s\nn\nn\n")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Verificação do Cheapskate falhou", result.stderr)
+        self.assertNotIn("Preparação concluída", result.stdout)
 
     def test_native_clients_outside_initial_path_are_reused(self):
         local_bin = self.home / ".local/bin"
