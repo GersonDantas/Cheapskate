@@ -1,18 +1,60 @@
 # Instalação e recuperação no macOS
 
-O instalador requer Python 3.11 ou superior. O perfil completo requer npm
-(com Node.js) e pipx para instalar CodeGraph e Graphify quando estiverem ausentes.
-Os clientes Codex CLI e Claude Code devem ser instalados e autenticados pelo
-usuário. O Cheapskate registra as versões testadas em `dependencies.json`.
+## Assistente inicial
+
+O assistente inicial prepara os pré-requisitos para uma instalação completa a
+partir de uma cópia local do projeto. Ele funciona antes de haver Python 3.11
+na máquina. Obtenha o repositório por clone ou pelo ZIP do GitHub, abra o
+diretório e execute:
+
+```sh
+bash scripts/bootstrap.sh --dry-run
+bash scripts/bootstrap.sh
+```
+
+A prévia detecta Homebrew, Python 3.11+, Node.js/npm, pipx, Codex CLI e Claude
+Code; mostra o estado de cada um e as instalações necessárias. A segunda
+chamada pede confirmação antes de instalar. Se algum pacote precisar de
+Homebrew e ele estiver ausente, baixa o instalador do projeto oficial e o
+executa. Homebrew instala os pacotes e os casks ausentes. A instalação pode
+pedir a senha de administrador e acesso à rede. Após falha nos pacotes ou no
+login, reexecute o comando: ele detecta os passos já concluídos. Se a falha
+ocorrer na transação do instalador Cheapskate, siga a seção Recuperação.
+
+O assistente prepara Homebrew e `~/.local/bin` no PATH do shell zsh, bash ou
+fish, sem substituir outras configurações. Recusa perfis que sejam symlinks.
+Abra um novo terminal depois da instalação. Para outro shell, siga a
+instalação manual abaixo.
+Clientes já presentes são preservados, inclusive quando estão em
+`~/.local/bin` fora do PATH inicial.
+
+Após instalar os programas, o assistente consulta `codex login status` e
+`claude auth status` sem mostrar ou salvar a saída. Se necessário, abre
+`codex login` e `claude auth login` para o usuário autenticar no navegador.
+Ele confirma o estado novamente e interrompe se o login não terminar. As
+credenciais permanecem sob controle dos próprios clientes.
+
+Por fim, o assistente mostra a prévia do instalador Cheapskate, pede a
+confirmação própria dessa etapa, instala instruções e integrações e executa
+`check`. Ele não substitui o instalador transacional descrito abaixo.
+Homebrew, pacotes externos, perfil de shell e logins persistem após
+`rollback` ou `uninstall` do Cheapskate. As versões de clientes registradas em
+`dependencies.json` são as testadas, enquanto os casks podem entregar versões
+mais novas.
 
 ## Prévia e aplicação
 
-Execute a partir do clone:
+Para executar apenas o instalador existente a partir do clone, use um Python
+3.11 ou superior disponível no PATH. Prepare manualmente npm, pipx, Codex CLI,
+Claude Code e os logins antes desta etapa se não usar o assistente:
 
 ```sh
 python3 scripts/cheapskate.py install --dry-run
 python3 scripts/cheapskate.py install
 ```
+
+Se `python3` ainda apontar para uma versão antiga, substitua-o por `python3.11`
+ou pelo caminho de outro Python 3.11+.
 
 A primeira chamada mostra os arquivos e as instalações externas previstas. Ela
 não cria diretórios, locks ou backups, não baixa pacotes e não consulta sessões.
@@ -21,8 +63,9 @@ validações. Para instalar somente instruções, use `--instructions-only`.
 
 O instalador copia uma lista explícita de arquivos para
 `~/.config/ai-instructions` e cria um comando em `~/.local/bin/cheapskate`.
-Esse diretório precisa estar no PATH para invocar o comando pelo nome. Também é
-possível continuar usando `python3 scripts/cheapskate.py` a partir do clone.
+O assistente inicial inclui esse diretório no PATH. Na instalação manual,
+configure o PATH para invocar o comando pelo nome. Também é possível continuar
+usando o caminho do interpretador Python validado a partir do clone.
 
 As entradas globais dos agentes preservam instruções preexistentes em arquivos
 regulares. Symlinks para a instalação ativa conhecida são substituídos por
@@ -44,9 +87,10 @@ instaladas em runtimes privados e versionados sob
 skills são verificados por hash antes do uso.
 
 Os hashes fixam os artefatos principais, não toda a resolução de dependências
-transitivas feita por npm/pipx. A matriz de compatibilidade ainda requer um teste
-independente, especialmente em Intel. Não existe atualização silenciosa de
-clientes, modelos, permissões ou dependências externas já instaladas.
+transitivas feita por npm/pipx. O assistente inicial usa os pacotes correntes
+do Homebrew; ele não fixa seus artefatos pelo manifesto do Cheapskate. A matriz
+de compatibilidade ainda requer um teste independente, especialmente em Intel.
+Clientes existentes, modelos e permissões não são atualizados silenciosamente.
 
 RTK recebe dois adaptadores diferentes:
 
@@ -132,6 +176,7 @@ permanecem após rollback/uninstall. Arquivos alheios não são removidos.
 
 ```sh
 python3 tests/test_installer.py
+python3 tests/test_bootstrap.py
 sh tests/test-evaluators.sh
 python3 tests/test_collect_real_prompts.py
 ```
@@ -149,8 +194,10 @@ O ensaio reaproveita executáveis presentes no PATH. O registro opcional do
 Personal Agent Team também passou no Codex home temporário, incluindo a segunda
 instalação. Para reproduzi-lo, acrescente `--with-team`.
 
-A instalação de dependências em uma máquina limpa e os hooks em sessões reais
-ainda exigem validação independente antes da release candidate. A medição
+A coordenação do assistente foi validada com comandos simulados, inclusive sem
+Homebrew ou Python e com falhas intermediárias. A instalação real em uma máquina
+limpa e os hooks em sessões reais ainda exigem validação independente antes da
+release candidate. A medição
 quantitativa pertence à próxima fase.
 
 Contratos consultados em 11 de outubro de 2026:
@@ -161,3 +208,10 @@ Contratos consultados em 11 de outubro de 2026:
 - [CodeGraph](https://github.com/colbymchenry/codegraph).
 - [Graphify 0.9.63](https://pypi.org/project/graphifyy/0.9.63/).
 - [Personal Agent Team](https://github.com/GersonDantas/agent-team-configurator).
+
+Contratos do assistente consultados em 18 de outubro de 2026:
+
+- [Instalação do Homebrew](https://docs.brew.sh/Installation) e [shellenv](https://docs.brew.sh/Manpage#shellenv-shell-).
+- [Python 3.11](https://formulae.brew.sh/formula/python@3.11), [Node.js](https://formulae.brew.sh/formula/node) e [pipx](https://formulae.brew.sh/formula/pipx) no Homebrew.
+- [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) e [autenticação](https://learn.chatgpt.com/docs/auth).
+- [Instalação do Claude Code](https://code.claude.com/docs/en/setup) e [comandos de autenticação](https://code.claude.com/docs/en/cli-reference).

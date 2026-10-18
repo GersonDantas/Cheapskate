@@ -29,6 +29,12 @@ a write-ahead journal, a process lock, and conflict checks. `dependencies.json`
 pins verified main artifacts and skills. External package/plugin installation
 has separate effects and is not claimed as reversible by the file journal.
 
+`scripts/bootstrap.sh` runs before the Python installer. It prepares missing
+macOS packages and clients through Homebrew, arranges shell PATH, checks each
+client's authentication state, and delegates the Cheapskate file changes to the
+Python installer. Homebrew changes, shell profile edits, and client logins stay
+outside the file journal and are not reverted by rollback.
+
 The installed Claude adapter embeds the shared content. The Codex RTK hook
 supplies mapping hints without returning permission decisions; the Claude hook
 can rewrite input while leaving its permission decision untouched. See
