@@ -1,4 +1,4 @@
-<!-- Generated file. Do not edit directly. Source: shared/*.md. -->
+<!-- Generated file. Do not edit directly. Source: shared/*.md and codex/rtk-guidelines.md. -->
 
 # Working agreements
 
@@ -39,3 +39,69 @@ Favor the smallest safe change that produces a verifiable result.
 - For a reported bug, reproduce the behavior before changing production code when practical. For validation, cover invalid input. For a refactor, establish the relevant behavior before and after.
 - Run the narrowest relevant check first, then broaden only when risk justifies it. Non-trivial multi-step work should include a short ordered plan with a check for each step.
 - The task is complete when the requested behavior passes its checks and no required step remains. Report exactly what could not be verified.
+
+
+# Terminal output
+
+RTK optimizes shell output. Use `rtk` directly for its own commands, including
+`rtk gain`, `rtk discover`, and `rtk proxy <command>`. Treat its savings as
+output estimates, never as provider billing or proof of total task savings.
+
+
+# CodeGraph
+
+When a repository root contains `.codegraph/`, use CodeGraph before broad text
+or file searches for architecture, symbol relationships, callers, callees, and
+impact analysis. Prefer `codegraph_explore` when available; otherwise use
+`codegraph explore "<question>"`.
+
+If `.codegraph/` is absent, use ordinary repository tools and do not initialize
+an index without the user's request.
+
+
+# Graphify
+
+Use the installed Graphify skill only when the user invokes `$graphify` or
+explicitly asks for a broad architectural knowledge graph spanning code,
+documentation, papers, images, or diagrams.
+
+When `graphify-out/graph.json` already exists and Graphify is in scope, prefer
+focused `graphify query`, `graphify path`, or `graphify explain` calls over
+reading the complete report or scanning the complete corpus.
+
+Keep CodeGraph as the default for precise source-code navigation, symbols,
+callers, callees, dependencies, and implementation impact. Use Graphify for
+broader cross-source architecture and exploration. Do not run both for the same
+question unless the first tool lacks sufficient evidence.
+
+Do not initialize, rebuild, watch, or refresh a Graphify graph without the
+user's request. Graphify is on demand, not an always-on replacement for ordinary
+repository tools or CodeGraph.
+
+
+# Caveman communication
+
+Use the installed Caveman communication skill in lite mode by default in every
+new session. Keep grammatical sentences in the user's language. This overrides
+the skill's default full intensity.
+
+Remove filler, but preserve evidence, uncertainty, risks, and required detail.
+Explain plans, reviews, blockers, and complex tasks fully. Honor requests for
+detail. Preserve required progress updates. Higher-priority rules override the
+skill's restrictions on narration and hedging.
+
+Limit Caveman to conversational prose. Preserve code, exact errors, commands,
+documentation, commits, and messages intended for other people. Do not enable
+Caveman proxy, shrink, MCP middleware, or routing changes. RTK alone handles
+supported terminal output compression.
+
+Honor stop caveman, `/caveman off`, and normal mode for the current session.
+New sessions start in lite unless the user changes this global preference.
+
+
+# RTK integration
+
+Invoke RTK explicitly for supported commands. The Codex hook provides command
+mapping hints without rewriting or approving tool calls. Never prefix a command
+already using RTK. For unsupported commands, use the traditional command or
+`rtk proxy <command>` when useful.
