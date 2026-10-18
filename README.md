@@ -28,24 +28,31 @@ the controlled, versioned evaluation described below.
 - Public synthetic evaluation cases and private real-prompt collection.
 - A reproducible baseline for before-and-after comparisons.
 
-The macOS installer and dependency manifest support diagnosis, installation,
-audit, update, rollback, and removal. Plugin packaging and an independent
-installation validation remain scheduled before publication.
+The macOS bootstrap prepares missing prerequisites and guides client logins.
+The installer and dependency manifest support diagnosis, installation, audit,
+update, rollback, and removal. Independent installation validation remains
+scheduled before publication.
 
 ## macOS installation
 
-Requires Python 3.11+. Preview the plan, then apply it:
+From a local copy of the repository, preview the full setup, then apply it:
 
 ```sh
-python3 scripts/cheapskate.py install --dry-run
-python3 scripts/cheapskate.py install
-python3 scripts/cheapskate.py check
+bash scripts/bootstrap.sh --dry-run
+bash scripts/bootstrap.sh
 ```
 
-The complete profile installs missing dependencies with pinned hashes, migrates
-recognized RTK hooks, and registers CodeGraph MCP. Existing instructions and
-unrelated configuration are preserved. Use `--instructions-only` for the
-instruction profile and `--with-team` for the optional Personal Agent Team.
+The assistant detects missing Homebrew, Python 3.11+, Node.js/npm, pipx, Codex
+CLI, and Claude Code. It asks before installing, checks both clients' login
+status, and opens their interactive login flows when needed. It then previews
+the Cheapskate installation, asks for its own confirmation, and runs `check`.
+Credentials remain with the clients. Existing tools are reused.
+
+The complete profile installs missing RTK, CodeGraph, and Graphify artifacts
+with pinned hashes, migrates recognized RTK hooks, and registers CodeGraph MCP.
+Existing instructions and unrelated configuration are preserved. For manual
+installation or `--instructions-only`, use `scripts/cheapskate.py` with Python
+3.11+. Use `--with-team` there for the optional Personal Agent Team.
 
 See [installation and recovery](docs/installation.md) for prerequisites,
 confirmation, version handling, runtime limitations, audit, and rollback.
@@ -172,11 +179,14 @@ checks with:
 
 ```sh
 python3 -m unittest discover -s tests -p 'test*.py'
+python3 tests/test_bootstrap.py
 sh tests/test-evaluators.sh
 python3 tests/test_collect_real_prompts.py
 ```
 
-These checks use temporary directories and simulated clients. Clean-machine
-dependency installation, live hook behavior, and controlled benchmarks still
-need independent validation before publication. The historical `0.0.1` tag
-remains unchanged while the next release is prepared.
+These checks use temporary directories and simulated clients. The bootstrap's
+coordination has been checked with missing tools, old Python, refusal, failed
+login, and repeated runs. Actual installation on a clean macOS machine, live
+hook behavior, and controlled benchmarks still need independent validation
+before publication. The historical `0.0.1` tag remains unchanged while the
+next release is prepared.
